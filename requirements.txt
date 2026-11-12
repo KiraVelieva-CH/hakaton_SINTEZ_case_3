@@ -1,0 +1,8 @@
+pydantic>=2.7,<3
+PyYAML>=6.0
+pandas>=2.0
+requests>=2.31
+python-dotenv>=1.0
+openai>=1.30
+cyvcf2>=0.30; platform_system != "Windows"
+pytest>=8.0

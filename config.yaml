@@ -1,0 +1,39 @@
+app:
+  name: genomic_detective
+  version: "1.0.0"
+  genome_build: GRCh38
+  output_dir: output
+  log_level: INFO
+
+input:
+  phenotype_file: null
+  variants_file: null
+  vcf_file: null
+  case_id: null
+
+thresholds:
+  max_population_af: 0.01
+  min_variant_quality: 20
+  min_depth: 8
+  min_allele_balance: 0.20
+  max_allele_balance: 0.80
+
+weights:
+  phenotype: 0.50
+  pathogenicity: 0.30
+  inheritance: 0.20
+  exomiser: 0.0  
+
+analysis:
+  workers: 4
+  top_n: 50
+  allow_network: true   
+  use_vep: true         
+  vep_species: homo_sapiens
+  vep_assembly: GRCh38
+  vep_timeout_seconds: 60
+
+resources:
+  genes_to_phenotype_txt: data/genes_to_phenotype.txt
+  clinvar_tsv: null
+  hpo_terms_tsv: null
