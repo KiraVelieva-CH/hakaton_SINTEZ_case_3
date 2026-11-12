@@ -32,8 +32,10 @@ analysis:
   vep_species: homo_sapiens
   vep_assembly: GRCh38
   vep_timeout_seconds: 60
+  use_openai: false
 
 resources:
   genes_to_phenotype_txt: data/genes_to_phenotype.txt
+  clinvar_vcf: data/clinvar.vcf.gz
   clinvar_tsv: null
   hpo_terms_tsv: null
