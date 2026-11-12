@@ -38,7 +38,7 @@ def run_pipeline(config, phenotype_path=None, variants_path=None, vcf_path=None,
                "genome_build": config.get("app", {}).get("genome_build", "GRCh38")}
     analyzers = [
         HPOAnalyzer(resources.get("genes_to_phenotype_txt")), 
-        PathogenicityAnalyzer(resources.get("clinvar_tsv")),
+        PathogenicityAnalyzer(resources.get("clinvar_vcf")),
         InheritanceAnalyzer(),
     ]
     blocks, errors = run_parallel(analyzers, context, config.get("analysis", {}).get("workers", 4))
@@ -67,7 +67,7 @@ def main():
     config = load_config(args.config)
     logging.basicConfig(level=getattr(logging, config.get("app",{}).get("log_level","INFO").upper(), logging.INFO))
     
-    
+   
     pheno_path = args.phenotypes
     vcf_path = args.vcf
     case_id = args.case_id
