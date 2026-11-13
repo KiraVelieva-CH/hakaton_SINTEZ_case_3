@@ -1,5 +1,4 @@
 from pathlib import Path
-from cyvcf2 import VCF
 from .base_analyzer import BaseAnalyzer
 
 class PathogenicityAnalyzer(BaseAnalyzer):
@@ -7,16 +6,18 @@ class PathogenicityAnalyzer(BaseAnalyzer):
 
     def __init__(self, clinvar_vcf_path=None):
         self.clinvar = {}
+        self.is_active = False 
         
+
         if clinvar_vcf_path and Path(clinvar_vcf_path).exists():
             print("Загрузка ClinVar... (это может занять 1-2 минуты при первом запуске)")
             try:
+
+                from cyvcf2 import VCF
                 
                 vcf = VCF(str(clinvar_vcf_path))
                 
-                
                 for variant in vcf:
-                    
                     clnsig = variant.INFO.get('CLNSIG')
                     if not clnsig:
                         continue
@@ -25,7 +26,6 @@ class PathogenicityAnalyzer(BaseAnalyzer):
                     
                     for alt in variant.ALT:
                         var_id = f"{chrom}:{variant.POS}:{variant.REF}:{alt}"
-                        
                         
                         sig = str(clnsig).lower()
                         if "pathogenic" in sig and "conflicting" not in sig:
@@ -46,10 +46,16 @@ class PathogenicityAnalyzer(BaseAnalyzer):
                         self.clinvar[var_id] = {"score": score, "significance": text}
                         
                 vcf.close()
+                self.is_active = True
                 print(f"ClinVar успешно загружен. Найдено {len(self.clinvar)} аннотированных вариантов.")
                 
+            except ImportError:
+                print("ВНИМАНИЕ: Библиотека cyvcf2 не установлена. Анализ патогенности по ClinVar будет пропущен.")
             except Exception as e:
-                print(f"Ошибка при чтении ClinVar: {e}")
+                print(f"Ошибка при чтении ClinVar: {e}. Анализ патогенности будет пропущен.")
+        else:
+
+            print("ClinVar не подключен (файл не указан или отсутствует). Будут использоваться только фенотип и наследование, а также информацию о патогенезе из ваших файлов.")
 
     def analyze(self, context):
         result = {}
@@ -62,9 +68,9 @@ class PathogenicityAnalyzer(BaseAnalyzer):
                 significance = cv_data["significance"]
             else:
                 score = None
-                significance = "Not found in ClinVar"
+                significance = "Not found in ClinVar" if self.is_active else "ClinVar disabled"
                 
-            
+
             extras = [x for x in (v.scores.get("alphamissense"), v.scores.get("spliceai")) if x is not None]
             if extras: 
                 score = sum(extras) / len(extras) if score is None else 0.7 * score + 0.3 * (sum(extras)/len(extras))
@@ -75,4 +81,6 @@ class PathogenicityAnalyzer(BaseAnalyzer):
                 "functional_scores": v.scores
             }
             
-        return {"variants": result, "note": "ClinVar loaded locally."}
+
+        note = "ClinVar loaded locally." if self.is_active else "ClinVar is disabled. Missing pathogenicity data means UNKNOWN, not benign."
+        return {"variants": result, "note": note}
