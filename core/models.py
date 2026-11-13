@@ -72,3 +72,4 @@ class AnalysisResult(BaseModel):
     status: str = "completed"
     warnings: list[str] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
+    score_status: str = "calculated" 

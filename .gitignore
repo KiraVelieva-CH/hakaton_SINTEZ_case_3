@@ -5,3 +5,13 @@ __pycache__/
 .cache/
 output/
 .env
+__pycache__/
+*.pyc
+output/
+.venv/
+data/clinvar.vcf.gz*
+__pycache__/
+*.pyc
+output/
+.venv/
+data/clinvar.vcf.gz*

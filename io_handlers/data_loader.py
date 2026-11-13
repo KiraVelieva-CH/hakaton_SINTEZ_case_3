@@ -155,7 +155,7 @@ def load_vcf(path: str | Path) -> list[Variant]:
                     gt_text = f"{gt[0]}{'|' if gt[2] else '/'}{gt[1]}"
                 dp = rec.INFO.get("DP")
                 out.append(Variant(
-                    variant_id=f"chr{rec.CHROM}:{rec.POS}:{rec.REF}:{alt}",
+                    variant_id=f"{_normalize_chrom(rec.CHROM)}:{rec.POS}:{rec.REF}:{alt}",
                     chrom=_normalize_chrom(rec.CHROM), pos=rec.POS, ref=rec.REF, alt=alt,
                     genotype=gt_text, qual=float(rec.QUAL) if rec.QUAL is not None else None,
                     depth=int(dp) if dp is not None else None,
@@ -184,7 +184,7 @@ def _load_vcf_minimal(path: Path) -> list[Variant]:
         for alt in alts.split(","):
             if alt.startswith("<") or alt == "*": continue
             out.append(Variant(
-                variant_id=f"chr{chrom}:{int(pos)}:{ref}:{alt}", chrom=_normalize_chrom(chrom),
+                variant_id=f"{_normalize_chrom(chrom)}:{int(pos)}:{ref}:{alt}", chrom=_normalize_chrom(chrom),
                 pos=int(pos), ref=ref, alt=alt, genotype=sample_map.get("GT"),
                 qual=float(qual) if qual not in {".", ""} else None,
                 depth=int(sample_map.get("DP", inf.get("DP", 0))) or None,
